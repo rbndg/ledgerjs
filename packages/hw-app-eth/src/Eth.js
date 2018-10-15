@@ -38,10 +38,27 @@ export default class Eth {
         "getAddress",
         "signTransaction",
         "signPersonalMessage",
-        "getAppConfiguration"
+        "getAppConfiguration",
+        "willShowConfirmation"
       ],
       scrambleKey
     );
+  }
+
+  /**
+   * check ledger if a confirmation will be required.
+   * @example
+   * eth.willShowConfirmation().then(o => o.willShowConfirmation)
+   */
+  willShowConfirmation(): Promise<{
+    willShowConfirmation: boolean,
+  }> {
+    return this.transport.send(0xe0,0x09, 0x00, 0x00).then(response => {
+      let result = {};
+      result.willShowConfirmation = response[0] ? true : false
+      return result;
+    });
+
   }
 
   /**

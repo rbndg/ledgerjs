@@ -53,14 +53,28 @@ export default class Eth {
   willShowConfirmation(): Promise<{
     willShowConfirmation: boolean,
   }> {
-    return this.transport.send(0xe0,0x09, 0x00, 0x00).then(response => {
+    return this.transport.send(0xe0,0xa1, 0x00, 0x00).then(response => {
       let result = {};
-      result.willShowConfirmation = response[0] ? true : false
+      result.willShowConfirmation = response[0] ? true : false;
+      return result;
+    });
+  }
+
+  /**
+   * Force confirmation on next request
+   * @example
+   * eth.resetRequestCount().then(o => o.resetRequestCount)
+   */
+  resetRequestCount(): Promise<{
+    willShowConfirmation: boolean,
+  }> {
+    return this.transport.send(0xe0,0xa2, 0x00, 0x00).then(response => {
+      let result = {};
+      result.resetRequestCount = response[0] ? true : false;
       return result;
     });
 
   }
-
   /**
    * get Ethereum address for a given BIP 32 path.
    * @param path a path in BIP 32 format

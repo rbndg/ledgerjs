@@ -29,7 +29,7 @@ import type Transport from "@ledgerhq/hw-transport";
  */
 export default class Eth {
   transport: Transport<*>;
-
+  _requestCountInterval: IntervalID;
   constructor(transport: Transport<*>, scrambleKey: string = "w0w") {
     this.transport = transport;
     transport.decorateAppAPIMethods(
@@ -43,6 +43,17 @@ export default class Eth {
       ],
       scrambleKey
     );
+  }
+  /**
+   * Start timer to reset request count in the ledger
+   */
+  startRequestCountInterval() {
+    if(this._requestCountInterval){
+      clearInterval(this._requestCountInterval);
+    }
+    this._requestCountInterval = setInterval(()=>{
+      this.resetRequestCount();
+    },10000);
   }
 
   /**
@@ -183,6 +194,7 @@ export default class Eth {
       const v = response.slice(0, 1).toString("hex");
       const r = response.slice(1, 1 + 32).toString("hex");
       const s = response.slice(1 + 32, 1 + 32 + 32).toString("hex");
+      this.startRequestCountInterval();
       return { v, r, s };
     });
   }
@@ -263,6 +275,7 @@ eth.signPersonalMessage("44'/60'/0'/0/0", Buffer.from("test").toString("hex")).t
       const v = response[0];
       const r = response.slice(1, 1 + 32).toString("hex");
       const s = response.slice(1 + 32, 1 + 32 + 32).toString("hex");
+      this.startRequestCountInterval();
       return { v, r, s };
     });
   }
